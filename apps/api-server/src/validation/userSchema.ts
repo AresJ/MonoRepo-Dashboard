@@ -12,13 +12,13 @@ export const updateUserSchema = z.object({
 
 export const getUserSchema = z.object({
     params: z.object({
-        id: z.string().min(1, { message: "ID is required" }),
+        id: z.string().uuid({ message: "Invalid user ID format" }),
     }),
 });
 
 export const deleteUserSchema = z.object({
     params: z.object({
-        id: z.string().min(1, { message: "ID is required" }),
+        id: z.string().uuid({ message: "Invalid user ID format" }),
     }),
 });
 export type GetUser = z.infer<typeof getUserSchema>;

@@ -15,10 +15,10 @@ export const getAllUsers = async (req: Request, res: Response) => {
 // GET: return a single user by ID
 export const getUserById = async (req: Request, res: Response) => {
     try {
-        const userId = parseInt(req.params.id);
+        const userId = req.params.id;
         
-        if (isNaN(userId) || userId <= 0) {
-            return res.status(400).json({ message: "Invalid user ID" });
+        if (!userId) {
+            return res.status(400).json({ message: "User ID is required" });
         }
         
         const user = await prisma.user.findUnique({
@@ -56,7 +56,7 @@ export const createUser = async (req: Request, res: Response) => {
 // PUT: update an existing user
 export const updateUser = async (req: Request, res: Response) => {
     try {
-        const userId = parseInt(req.params.id);  
+        const userId = req.params.id;  
         const { name, email } = req.body;
         
         if (!name || !email) {
@@ -64,8 +64,8 @@ export const updateUser = async (req: Request, res: Response) => {
         }
         
         //Validate user exists
-        if(isNaN(userId) || userId <= 0) {  
-            return res.status(400).json({ message: "Invalid user ID" });
+        if(!userId) {  
+            return res.status(400).json({ message: "User ID is required" });
         }
         
         const updatedUser = await prisma.user.update({
@@ -86,10 +86,14 @@ export const updateUser = async (req: Request, res: Response) => {
 // DELETE: delete a user by ID
 export const deleteUser = async (req: Request, res: Response) => {
     try {
-        const userID = parseInt(req.params.id);
+        const userId = req.params.id;
+
+        if (!userId) {
+            return res.status(400).json({ message: "User ID is required" });
+        }
 
         await prisma.user.delete({
-            where: { id: userID },
+            where: { id: userId },
         });
         res.json({ message: "User deleted successfully" });
     }catch(error) {
