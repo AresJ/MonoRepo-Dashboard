@@ -39,14 +39,15 @@ export const getUserById = async (req: Request, res: Response) => {
 // POST: create a new user
 export const createUser = async (req: Request, res: Response) => {
     try {
-        const { name, email } = req.body;
-        if (!name || !email) {
-            return res.status(400).json({ message: "Name and email are required" });
+        const { name, email, password } = req.body;
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: "Name, email, and password are required" });
         }
-    const newUser = await prisma.user.create({
-        data: {name, email},
+        
+        const newUser = await prisma.user.create({
+            data: { name, email, password },
         });
-    res.status(201).json(newUser);
+        res.status(201).json(newUser);
     } catch (error) {
         console.error("Error creating user:", error);
         res.status(500).json({ message: "Failed to create user" });
@@ -81,7 +82,6 @@ export const updateUser = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Failed to update user" });
     }
 };
-
 
 // DELETE: delete a user by ID
 export const deleteUser = async (req: Request, res: Response) => {

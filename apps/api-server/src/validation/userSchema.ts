@@ -1,13 +1,18 @@
 import { z } from "zod";
 
 export const createUserSchema = z.object({
-    name: z.string().min(1, { message: "Name is required" }),
-    email: z.string().email({ message: "Invalid email address" }),
+    body: z.object({
+        name: z.string().min(1, { message: "Name is required" }),
+        email: z.string().email({ message: "Invalid email address" }),
+        password: z.string().min(1, { message: "Password is required" }),
+    }),
 });
 
 export const updateUserSchema = z.object({
-    name: z.string().min(1).optional(),
-    email: z.string().email({ message: "Invalid email address" }).optional(),
+    body: z.object({
+        name: z.string().min(1).optional(),
+        email: z.string().email({ message: "Invalid email address" }).optional(),
+    }),
 });
 
 export const getUserSchema = z.object({
@@ -21,6 +26,7 @@ export const deleteUserSchema = z.object({
         id: z.string().uuid({ message: "Invalid user ID format" }),
     }),
 });
+
 export type GetUser = z.infer<typeof getUserSchema>;
 export type DeleteUser = z.infer<typeof deleteUserSchema>;
 export type CreateUser = z.infer<typeof createUserSchema>;

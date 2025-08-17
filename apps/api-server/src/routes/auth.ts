@@ -1,12 +1,13 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient as Prisma } from "../generated/prisma";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { JWT_SECRET } from "../config/env"; // Make sure this is set in .env file
+import { authenticateToken, AuthenticatedRequest } from "../middleware/auth";
 
 const router = Router();
-const prisma = new PrismaClient();
+const prisma = new Prisma();
 
 //Validation schema for user registration
 const userRegistrationSchema = z.object({
@@ -75,4 +76,19 @@ router.post("/login", async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
+
+//Protected route
+router.get("/protected", authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try{
+        const user = await prisma.user.findUnique({where: {id: req.user?.userId}, select: {id: true, email: true, name: true, createdAt: true, updatedAt: true}});
+        if(!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        res.status(200).json({ message: "Access granted", user: { id: user.id, email: user.email, name: user.name } });
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 export default router;
