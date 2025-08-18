@@ -10,10 +10,16 @@ router.get("/", apiRateLimiter, async (req, res) => {
 
         // Convert query params to numbers
 
-            const data = await prisma.data.findMany({
+            const data = await prisma.user.findMany({
                 where: search ? { name: { contains: search as string, mode: "insensitive" } } : {},
                 skip: Number(offset),
                 take: Number(limit),
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    createdAt: true,
+                }
             });
 
             res.json({ success: true, data });

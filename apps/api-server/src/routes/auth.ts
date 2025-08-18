@@ -30,7 +30,7 @@ router.post("/register", async (req, res) => {
         }
 
         //Check if user already exists
-        const existingUser = await prisma.user.findUnique({where: { email },});
+        const existingUser = await prisma.user.findUnique({where: { email }, select: {id: true, email: true, role: true}});
         if(existingUser) {
             return res.status(409).json({ error: "Email already in use"});
         }
@@ -69,7 +69,7 @@ router.post("/login", async (req, res) => {
         }
 
         // Generate JWT token
-        const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET as string, { expiresIn: "1h" });
+        const token = jwt.sign({ userId: user.id, email: user.email, role: user.role }, JWT_SECRET as string, { expiresIn: "1h" });
         res.status(200).json({ message: "Login successful", token });
     } catch (error) {
         console.error("Error logging in user:", error);

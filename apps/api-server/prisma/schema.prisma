@@ -14,17 +14,112 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ENUMS
+enum UserRole {
+  ADMIN
+  ADJUSTER
+  AGENT
+  CUSTOMER
+}
+
+enum ClaimStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  SETTLED
+}
+
+enum PolicyStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum PropertyType{
+  HOME
+  AUTO
+  COMMERCIAL
+}
+
+//MODELS
 model User{
   id String @id @default(uuid()) @db.Uuid
   email String @unique
   name String?
   password String
+  role UserRole @default(CUSTOMER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt 
+
+
+  // Relationships
+  policies  Policy[]
+  claims    Claim[] @relation("ClaimOwner")
+  assignedClaims  Claim[] @relation("ClaimAdjuster")
+
+  @@map("users")
 }
 
-model Data {
+model Policy {
+  id    String  @id @default(uuid()) @db.Uuid
+  policyNumber  String  @unique
+  type  PropertyType
+  status  PolicyStatus @default(ACTIVE)
+  premium Float
+  coverageAmount  Float
+  deductible  Float
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relationships  
+  userId    String  @db.Uuid
+  user      User    @relation(fields: [userId], references: [id])
+  properties  Property[]
+  claims    Claim[]
+
+  @@map("policies")
+}
+
+model Property {
   id String @id @default(uuid()) @db.Uuid
-  name String
-  value String
+  type  PropertyType
+  address String
+  value Float
+  description String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relationships
+  policyId  String  @db.Uuid
+  policy  Policy  @relation(fields: [policyId], references: [id])
+  claims  Claim[]
+
+  @@map("properties")
+}
+
+model Claim{
+  id  String  @id @default(uuid()) @db.Uuid
+  claimNumber String  @unique
+  status  ClaimStatus @default(DRAFT)
+  amount  Float
+  description String
+  incidentDate  DateTime 
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  //  Relationships
+  userId    String  @db.Uuid
+  user  User  @relation("ClaimOwner", fields: [userId], references: [id])
+  policyId    String  @db.Uuid
+  policy    Policy  @relation(fields: [policyId], references:[id])
+  propertyId  String  @db.Uuid
+  property    Property  @relation(fields:[propertyId], references: [id])
+  adjusterUserId  String? @db.Uuid
+  adjuster    User? @relation("ClaimAdjuster", fields: [adjusterUserId], references: [id])
+
+  @@map("claims")
 }

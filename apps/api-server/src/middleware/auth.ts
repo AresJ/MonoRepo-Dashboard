@@ -7,6 +7,7 @@ export interface AuthenticatedRequest extends Request {
     user?: {
         userId: string;
         email: string;
+        role: string;
     };
 }
 
@@ -23,7 +24,7 @@ export const authenticateToken = (req: AuthenticatedRequest, res: Response, next
         if (err) {
             return res.status(401).json({ error: "Invalid token" });
         }
-        (req as AuthenticatedRequest).user = decoded as { userId: string; email: string };
+        (req as AuthenticatedRequest).user = decoded as { userId: string; email: string; role: string };
         next();
     });
 };

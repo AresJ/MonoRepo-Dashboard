@@ -1,10 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 
-function isError(error: unknown): error is Error {
-    return error instanceof Error;
-}
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const errorHandler = (err: unknown, _req: Request, res: Response, next?: NextFunction) => {
     // 🔷 Log the error
